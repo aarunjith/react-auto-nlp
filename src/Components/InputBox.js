@@ -9,7 +9,7 @@ import AnswerOutput from "./AnswerOutput";
 import SummaryOutput from "./SummaryOutput";
 import FillOutput from "./FillOutput";
 
-const BASE_URL = "http://localhost:5050/";
+const BASE_URL = "http://44.199.112.30:8892/";
 
 const reduceTask = (state, action) => {
   const currentState = { ...state };
