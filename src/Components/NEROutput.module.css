@@ -1,0 +1,45 @@
+.result {
+  padding: 2em 0em;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  margin: auto auto;
+}
+
+.words {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 1em;
+}
+
+.word {
+  margin-right: 0.1em;
+  padding: 0.5em 1em;
+  border-radius: 2em;
+}
+
+.Person {
+  background-color: rgb(27, 87, 253);
+  color: white;
+}
+.Miscellaneous {
+  background-color: orange;
+  color: white;
+}
+.Organisation {
+  background-color: rgb(212, 85, 106);
+  color: white;
+}
+.Location {
+  background-color: green;
+  color: white;
+}
+
+.word__main {
+  font-size: large;
+  font-weight: 600;
+}
+
+.word__annotation {
+  font-size: x-small;
+}

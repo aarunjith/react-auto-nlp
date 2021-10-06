@@ -1,0 +1,7 @@
+.result {
+  padding: 2em 0em;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  margin: auto auto;
+}

@@ -1,0 +1,30 @@
+.bar {
+  margin-top: 2em;
+  width: 80%;
+  transition: 0.5s ease;
+  overflow-y: hidden;
+  align-self: center;
+}
+
+.bar__outer {
+}
+
+.bar__inner {
+  background-image: linear-gradient(180deg, #3989bb, #6fc5fa);
+  height: 1em;
+  border-radius: 1em;
+  transition: 0.7s ease;
+  transition-delay: 0.5s;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.5em;
+}
+
+.zero {
+}
+.hundred {
+}

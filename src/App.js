@@ -1,24 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
-
+import classes from "./App.module.css";
+import InputBox from "./Components/InputBox";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+    <section className={classes.main}>
+      <div className={classes.header}>
+        <h2>Auto NLP</h2>
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Text Sentiment Classification, Filling Missing text, and Entity
+          Recognition
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      </div>
+      <InputBox />
+    </section>
   );
 }
 
