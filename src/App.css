@@ -1,0 +1,34 @@
+.header-text h2, .header-text p {
+    color: #fefefe;
+    font-weight: bold;
+}
+
+.select-modes {
+    cursor: pointer; 
+    position: relative;
+    left: 10%;
+}
+
+    .select-modes > .card {
+        width: 200px;
+        border: none;
+    }
+
+      .select-modes > .card:hover, .select-modes > .card.active {
+          box-shadow: 8px 8px 8px -4px grey;
+          background-color: #3366cc;
+      }
+
+      .select-modes > .card > .card-img-top {
+        height: 100px;
+      }
+  
+      .select-modes > .card > .card-body > .card-text {
+          color: #3366cc;
+          font-weight: bold;
+      }
+
+      .select-modes > .card:hover > .card-body > .card-text,
+      .select-modes > .card.active > .card-body > .card-text {
+          color: #fefefe;
+       }

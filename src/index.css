@@ -33,10 +33,15 @@
   border-radius: 10px;
 }
 
+body, html {
+  height: 100%;
+}
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* background-color: #000 !important; */
 }
 
 code {
@@ -103,4 +108,18 @@ input[type="radio"][name="fill"]:checked + label {
 
 input[type="radio"][name="fill"] + label:hover {
   cursor: pointer;
+}
+
+.bg-main { 
+  /* The image used */
+  /* background-image: url('./logos/ai_gifs1.gif'); */
+
+  /* Full height */
+  height: 100%; 
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: #333;
 }

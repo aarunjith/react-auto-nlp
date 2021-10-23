@@ -19,7 +19,8 @@
 .text__label {
   padding-left: 2em;
   padding-top: 2em;
-  font-weight: 600;
+  font-weight: bold;
+  color: #fefefe;
 }
 .selectors {
   margin: 2em;
@@ -34,8 +35,8 @@
 
 .invalid {
   outline: none;
-  box-shadow: 0 0 3pt 2pt rgb(177, 48, 16);
-  border: none;
+  /* box-shadow: 0 0 3pt 2pt rgb(177, 48, 16); */
+  border: 3px solid rgb(177, 48, 16) !important;
 }
 
 .fills {

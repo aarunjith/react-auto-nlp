@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useReducer, useCallback } from "react";
+import React, { useState, useReducer, useCallback } from "react";
+import _ from "lodash";
+
 import Card from "./UI/Card";
 import classes from "./InputBox.module.css";
 import Button from "./UI/Button";
@@ -8,6 +10,12 @@ import NEROutput from "./NEROutput";
 import AnswerOutput from "./AnswerOutput";
 import SummaryOutput from "./SummaryOutput";
 import FillOutput from "./FillOutput";
+
+// import IdentifySentiment from '../logos/Identify Sentiment.jpg';
+// import EntityRecognition from '../logos/Entity Recognition.jpg';
+// import QuestionAnswering from '../logos/Question Answering.jpg';
+// import FillMaskedWord from '../logos/Fill Masked Word.jpg';
+// import TextSummarization from '../logos/Text Summarization.jpg';
 
 const BASE_URL = "http://44.199.112.30:8892/";
 
@@ -76,14 +84,69 @@ function InputBox() {
   const [sendRequest, isLoading, error] = useRequests(BASE_URL);
   const [showOutputs, setShowOutputs] = useState(false);
 
-  const onChangeTask = (event) => {
-    dispatchTaskState({ type: event.target.value });
+  const [selectedTask, setSelectedTask] = useState("sentiment");
+  
+  const [classificationList, setClassifications] = useState([
+    {
+      text: 'Identify Sentiment',
+      value: 'sentiment',
+      //image: IdentifySentiment,
+      active: true
+    },
+    {
+      text: 'Entity Recognition',
+      value: 'ner',
+      //image: EntityRecognition,
+      active: false
+    },
+    {
+      text: 'Question Answering',
+      value: 'qa',
+      //image: QuestionAnswering,
+      active: false
+    },
+    {
+      text: 'Fill Masked Word',
+      value: 'mask-fill',
+      //image: FillMaskedWord,
+      active: false
+    },
+    {
+      text: 'Text Summarization',
+      value: 'summary',
+      //image: TextSummarization,
+      active: false
+    }
+  ]);
+
+  const onClassificationValue = (value) => {
+    dispatchTaskState({ type: value });
     setShowOutputs(false);
+    setValidInput(true);
+    setSelectedTask(value);
+    setClassifications(_.map(classificationList, (x) => {
+      x.active = (x.text === value);
+      return x;
+    }));
   };
+    
+  const getSelectBox = () => {
+    return _.map(classificationList, (x) => {
+      return (
+        <div key={x.value} className={"card col-md-3 col-sm-6 col-12 m-1" + (x.active ? " active" : "")} onClick={() => onClassificationValue(x.text)}>
+          {/* <img className="card-img-top w-100" src={x.image} alt={x.text} /> */}
+          <div className="card-body">
+            <p className="card-text">
+              {x.text}
+            </p>
+          </div>
+        </div>
+      );
+    });
+  }
 
   const processData = useCallback((data) => {
     setResponseData(data);
-    console.log(data);
   }, []);
 
   const updateText = (event) => {
@@ -141,26 +204,20 @@ function InputBox() {
   return (
     <React.Fragment>
       <Card className={classes.input}>
-        <div className={classes.selectors}>
-          <select onChange={onChangeTask}>
-            <option name="sentiment">Identify Sentiment</option>
-            <option name="ner">Entity Recognition</option>
-            <option name="qa">Question Answering</option>
-            <option name="mask-fill">Fill Masked Word</option>
-            <option name="summary">Text Summarization</option>
-          </select>
+        <div className="row select-modes mb-3">
+          {getSelectBox()}
         </div>
-        <div className={classes.input__text}>
+        <div className={classes.input__text + " form-group"}>
           <label className={classes.text__label}>Input Text </label>
           <textarea
             placeholder="Type something here...."
             onChange={updateText}
             value={taskState.inputText}
-            className={!validInput ? classes.invalid : undefined}
+            className={!validInput ? `form-control ${classes.invalid}` : "form-control"}
           ></textarea>
         </div>
         <div
-          className={classes.fills}
+          className={classes.fills + " form-group"}
           style={{ height: taskState.displayFills ? "auto" : "0px" }}
         >
           <div className={classes.fills__header}>
@@ -200,7 +257,7 @@ function InputBox() {
         </div>
 
         <div
-          className={classes.input__text}
+          className={classes.input__text + " form-group"}
           style={{ height: taskState.displayContext ? "300px" : "0px" }}
         >
           <label
@@ -214,12 +271,12 @@ function InputBox() {
             placeholder="Type something here...."
             onChange={updateContext}
             value={taskState.inputContext}
-            className={!validContext ? classes.invalid : undefined}
+            className={!validContext ? `form-control ${classes.invalid}` : "form-control"}
           ></textarea>
         </div>
 
-        <div className={classes.input__controls}>
-          <Button onClick={onSubmit}>{taskState.buttonText}</Button>
+        <div className="mt-3">
+          <Button className="btn btn-success" onClick={onSubmit}>{taskState.buttonText}</Button>
         </div>
       </Card>
       <Card
