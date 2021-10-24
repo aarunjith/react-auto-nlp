@@ -112,7 +112,7 @@ input[type="radio"][name="fill"] + label:hover {
 
 .bg-main { 
   /* The image used */
-  /* background-image: url('./logos/ai_gifs1.gif'); */
+  background-image: url('./logos/ai-image2.jpg');
 
   /* Full height */
   height: 100%; 
@@ -120,6 +120,6 @@ input[type="radio"][name="fill"] + label:hover {
   /* Center and scale the image nicely */
   background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;
-  background-color: #333;
+  background-size: calc(150%);
+  background-color: #000;
 }
