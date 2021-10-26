@@ -123,3 +123,7 @@ input[type="radio"][name="fill"] + label:hover {
   background-size: calc(150%);
   background-color: #000;
 }
+
+.form-control {
+  height: 35%;
+}

@@ -5,3 +5,7 @@
   flex-direction: column;
   margin: auto auto;
 }
+
+  .result > p, .result > span, .result > label {
+    color: #FFFFFF; 
+  }

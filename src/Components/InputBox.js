@@ -258,7 +258,7 @@ function InputBox() {
 
         <div
           className={classes.input__text + " form-group"}
-          style={{ height: taskState.displayContext ? "300px" : "0px" }}
+          style={{ height: taskState.displayContext ? "auto" : "0px" }}
         >
           <label
             className={classes.text__label}
@@ -275,7 +275,7 @@ function InputBox() {
           ></textarea>
         </div>
 
-        <div className="mt-3">
+        <div className="mt-5">
           <Button className="btn btn-success" onClick={onSubmit}>{taskState.buttonText}</Button>
         </div>
       </Card>
