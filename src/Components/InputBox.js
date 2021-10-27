@@ -21,6 +21,7 @@ const BASE_URL = "http://44.199.112.30:8892/";
 
 const reduceTask = (state, action) => {
   const currentState = { ...state };
+  currentState.inputContext = "";
   if (action.type === "Identify Sentiment") {
     currentState.buttonText = "Identify";
     currentState.displayFills = false;
@@ -75,6 +76,59 @@ const INIT_STATE = {
 };
 
 function InputBox() {
+  
+  const [classificationList, setClassifications] = useState([
+    {
+      text: 'Identify Sentiment',
+      value: 'sentiment',
+      //image: IdentifySentiment,
+      active: true,
+      title: 'I really like the new design of your website!',
+      placeholder: 'I really like the new design of your website!'
+    },
+    {
+      text: 'Entity Recognition',
+      value: 'ner',
+      //image: EntityRecognition,
+      active: false,
+      title: 'Cristiano was born in Portugal.',
+      placeholder: 'Cristiano was born in Portugal.'
+    },
+    {
+      text: 'Question Answering',
+      value: 'qa',
+      //image: QuestionAnswering,
+      active: false,
+      title: 'Where is Cristiano from?',
+      placeholder: 'Where is Cristiano from?',
+      context_title: 'Cristiano Ronaldo dos Santos Aveiro was born in the São Pedro parish of Funchal, the capital of the Portuguese island of Madeira, and grew up in the nearby parish of Santo António.[10][11] He is the fourth and youngest child of Maria Dolores dos Santos Viveiros da Aveiro, a cook, and José Dinis Aveiro, a municipal gardener and part-time kit man.',
+      context_placeholder: 'Cristiano Ronaldo dos Santos Aveiro was born in the São Pedro parish of Funchal...'
+    },
+    {
+      text: 'Fill Masked Word',
+      value: 'mask-fill',
+      //image: FillMaskedWord,
+      active: false,
+      title: 'These brownies are delicious. They taste like heaven.',
+      placeholder: 'These brownies are delicious. They taste like heaven.'
+    },
+    {
+      text: 'Text Summarization',
+      value: 'summary',
+      //image: TextSummarization,
+      active: false,
+      title: 'Earth’s temperature begins with the Sun. Roughly 30 percent of incoming sunlight is reflected back into space by bright surfaces like clouds and ice. Of the remaining 70 percent, most is absorbed by the land and ocean, and the rest is absorbed by the atmosphere. The absorbed solar energy heats our planet.' +
+                    'As the rocks, the air, and the seas warm, they radiate “heat” energy (thermal infrared radiation). From the surface, this energy travels into the atmosphere where much of it is absorbed by water vapor and long-lived greenhouse gases such as carbon dioxide and methane.' +
+                    'When they absorb the energy radiating from Earth’s surface, microscopic water or greenhouse gas molecules turn into tiny heaters— like the bricks in a fireplace, they radiate heat even after the fire goes out. They radiate in all directions. The energy that radiates back toward Earth heats both the lower atmosphere and the surface, enhancing the heating they get from direct sunlight.' +
+                    'This absorption and radiation of heat by the atmosphere—the natural greenhouse effect—is beneficial for life on Earth. If there were no greenhouse effect, the Earth’s average surface temperature would be a very chilly -18°C (0°F) instead of the comfortable 15°C (59°F) that it is today.',
+      placeholder: 'Earth’s temperature begins with the Sun. Roughly 30 percent of incoming sunlight is reflected back into space...'
+    }
+  ]);
+  
+  const [selectedClasification, setSelectedClasification] = useState(classificationList[0]);
+  INIT_STATE.inputText = selectedClasification?.title ?? "";
+  INIT_STATE.inputContext = selectedClasification?.context_title ?? "";
+
   const [taskState, dispatchTaskState] = useReducer(reduceTask, INIT_STATE);
   const [validInput, setValidInput] = useState(true);
   const [validContext, setValidContext] = useState(true);
@@ -85,47 +139,21 @@ function InputBox() {
   const [showOutputs, setShowOutputs] = useState(false);
 
   const [selectedTask, setSelectedTask] = useState("sentiment");
-  
-  const [classificationList, setClassifications] = useState([
-    {
-      text: 'Identify Sentiment',
-      value: 'sentiment',
-      //image: IdentifySentiment,
-      active: true
-    },
-    {
-      text: 'Entity Recognition',
-      value: 'ner',
-      //image: EntityRecognition,
-      active: false
-    },
-    {
-      text: 'Question Answering',
-      value: 'qa',
-      //image: QuestionAnswering,
-      active: false
-    },
-    {
-      text: 'Fill Masked Word',
-      value: 'mask-fill',
-      //image: FillMaskedWord,
-      active: false
-    },
-    {
-      text: 'Text Summarization',
-      value: 'summary',
-      //image: TextSummarization,
-      active: false
-    }
-  ]);
 
   const onClassificationValue = (value) => {
-    dispatchTaskState({ type: value });
-    setShowOutputs(false);
-    setValidInput(true);
-    setSelectedTask(value);
     setClassifications(_.map(classificationList, (x) => {
       x.active = (x.text === value);
+      if (x.active) {
+        setSelectedTask(value);
+        dispatchTaskState({ type: value });
+        setShowOutputs(false);
+        setValidInput(true);
+        if(x.title)
+          dispatchTaskState({ type: "Update Text", payload: x.title });
+        if(x.context_title)
+          dispatchTaskState({ type: "Update Context", payload: x.context_title });
+        setSelectedClasification(x);
+      }
       return x;
     }));
   };
@@ -210,7 +238,8 @@ function InputBox() {
         <div className={classes.input__text + " form-group"}>
           <label className={classes.text__label}>Input Text </label>
           <textarea
-            placeholder="Type something here...."
+            placeholder={selectedClasification.placeholder}
+            title={selectedClasification.title ?? ""}
             onChange={updateText}
             value={taskState.inputText}
             className={!validInput ? `form-control ${classes.invalid}` : "form-control"}
@@ -268,7 +297,8 @@ function InputBox() {
             Context
           </label>
           <textarea
-            placeholder="Type something here...."
+            placeholder={selectedClasification.context_placeholder ?? ""}
+            title={selectedClasification.context_title ?? ""}
             onChange={updateContext}
             value={taskState.inputContext}
             className={!validContext ? `form-control ${classes.invalid}` : "form-control"}

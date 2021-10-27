@@ -14,12 +14,14 @@
   display: flex;
   flex-wrap: wrap;
   padding: 1em;
+  color: #fefefe; 
 }
 
 .word {
   margin-right: 0.1em;
   padding: 0.5em 1em;
   border-radius: 2em;
+  color: #fefefe; 
 }
 
 .Person {
