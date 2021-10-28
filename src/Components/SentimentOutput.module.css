@@ -8,4 +8,5 @@
 
   .result > p, .result > span, .result > label {
     color: #FFFFFF; 
+    font-weight: bold;
   }

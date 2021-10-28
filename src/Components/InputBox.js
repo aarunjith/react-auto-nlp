@@ -84,7 +84,6 @@ function InputBox() {
       //image: IdentifySentiment,
       active: true,
       title: 'I really like the new design of your website!',
-      placeholder: 'I really like the new design of your website!'
     },
     {
       text: 'Entity Recognition',
@@ -92,7 +91,6 @@ function InputBox() {
       //image: EntityRecognition,
       active: false,
       title: 'Cristiano was born in Portugal.',
-      placeholder: 'Cristiano was born in Portugal.'
     },
     {
       text: 'Question Answering',
@@ -100,9 +98,7 @@ function InputBox() {
       //image: QuestionAnswering,
       active: false,
       title: 'Where is Cristiano from?',
-      placeholder: 'Where is Cristiano from?',
       context_title: 'Cristiano Ronaldo dos Santos Aveiro was born in the São Pedro parish of Funchal, the capital of the Portuguese island of Madeira, and grew up in the nearby parish of Santo António.[10][11] He is the fourth and youngest child of Maria Dolores dos Santos Viveiros da Aveiro, a cook, and José Dinis Aveiro, a municipal gardener and part-time kit man.',
-      context_placeholder: 'Cristiano Ronaldo dos Santos Aveiro was born in the São Pedro parish of Funchal...'
     },
     {
       text: 'Fill Masked Word',
@@ -110,7 +106,6 @@ function InputBox() {
       //image: FillMaskedWord,
       active: false,
       title: 'These brownies are delicious. They taste like heaven.',
-      placeholder: 'These brownies are delicious. They taste like heaven.'
     },
     {
       text: 'Text Summarization',
@@ -121,7 +116,6 @@ function InputBox() {
                     'As the rocks, the air, and the seas warm, they radiate “heat” energy (thermal infrared radiation). From the surface, this energy travels into the atmosphere where much of it is absorbed by water vapor and long-lived greenhouse gases such as carbon dioxide and methane.' +
                     'When they absorb the energy radiating from Earth’s surface, microscopic water or greenhouse gas molecules turn into tiny heaters— like the bricks in a fireplace, they radiate heat even after the fire goes out. They radiate in all directions. The energy that radiates back toward Earth heats both the lower atmosphere and the surface, enhancing the heating they get from direct sunlight.' +
                     'This absorption and radiation of heat by the atmosphere—the natural greenhouse effect—is beneficial for life on Earth. If there were no greenhouse effect, the Earth’s average surface temperature would be a very chilly -18°C (0°F) instead of the comfortable 15°C (59°F) that it is today.',
-      placeholder: 'Earth’s temperature begins with the Sun. Roughly 30 percent of incoming sunlight is reflected back into space...'
     }
   ]);
   
@@ -248,8 +242,7 @@ function InputBox() {
           </div>
           <div className="col-12">
             <textarea
-              placeholder={selectedClasification.placeholder}
-              title={selectedClasification.title ?? ""}
+              placeholder="Type here or click on sample text"
               onChange={updateText}
               value={taskState.inputText}
               className={!validInput ? `form-control ${classes.invalid}` : "form-control"}
@@ -308,8 +301,7 @@ function InputBox() {
             Context
           </label>
           <textarea
-            placeholder={selectedClasification.context_placeholder ?? ""}
-            title={selectedClasification.context_title ?? ""}
+            placeholder="Type here or click on sample text"
             onChange={updateContext}
             value={taskState.inputContext}
             className={!validContext ? `form-control ${classes.invalid}` : "form-control"}
