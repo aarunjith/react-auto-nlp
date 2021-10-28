@@ -126,8 +126,6 @@ function InputBox() {
   ]);
   
   const [selectedClasification, setSelectedClasification] = useState(classificationList[0]);
-  INIT_STATE.inputText = selectedClasification?.title ?? "";
-  INIT_STATE.inputContext = selectedClasification?.context_title ?? "";
 
   const [taskState, dispatchTaskState] = useReducer(reduceTask, INIT_STATE);
   const [validInput, setValidInput] = useState(true);
@@ -148,10 +146,8 @@ function InputBox() {
         dispatchTaskState({ type: value });
         setShowOutputs(false);
         setValidInput(true);
-        if(x.title)
-          dispatchTaskState({ type: "Update Text", payload: x.title });
-        if(x.context_title)
-          dispatchTaskState({ type: "Update Context", payload: x.context_title });
+        dispatchTaskState({ type: "Update Text", payload: "" });
+        dispatchTaskState({ type: "Update Context", payload: "" });
         setSelectedClasification(x);
       }
       return x;
@@ -229,21 +225,36 @@ function InputBox() {
     setSelectedWord(event.target.value);
   };
 
+  const onSampleTextClick = () => {
+    dispatchTaskState({ type: "Update Text", payload: selectedClasification.title });
+    if (selectedClasification.context_title)
+      dispatchTaskState({ type: "Update Context", payload: selectedClasification.context_title });
+  };
+
   return (
     <React.Fragment>
       <Card className={classes.input}>
         <div className="row select-modes mb-3">
           {getSelectBox()}
         </div>
-        <div className={classes.input__text + " form-group"}>
-          <label className={classes.text__label}>Input Text </label>
-          <textarea
-            placeholder={selectedClasification.placeholder}
-            title={selectedClasification.title ?? ""}
-            onChange={updateText}
-            value={taskState.inputText}
-            className={!validInput ? `form-control ${classes.invalid}` : "form-control"}
-          ></textarea>
+        <div className={`${classes.input__text} form-group row`}>
+          <div className="col-12 row">
+            <div className="col-6">
+              <label className={`${classes.text__label} float-start position-relative top-100`}>Input Text </label>
+            </div>
+            <div className="col=6">
+              <button id="btnSampleText" className="btn btn-primary float-end mb-4" onClick={onSampleTextClick}>Sample Text</button>
+            </div>
+          </div>
+          <div className="col-12">
+            <textarea
+              placeholder={selectedClasification.placeholder}
+              title={selectedClasification.title ?? ""}
+              onChange={updateText}
+              value={taskState.inputText}
+              className={!validInput ? `form-control ${classes.invalid}` : "form-control"}
+            ></textarea>
+          </div>
         </div>
         <div
           className={classes.fills + " form-group"}
