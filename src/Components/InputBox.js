@@ -8,8 +8,11 @@ import NEROutput from "./NEROutput";
 import AnswerOutput from "./AnswerOutput";
 import SummaryOutput from "./SummaryOutput";
 import FillOutput from "./FillOutput";
+import Modal from "./UI/Modal";
+import Loading from "./UI/Loading";
+import InputForm from "./InputForm";
 
-const BASE_URL = "http://44.199.112.30:8892/";
+const BASE_URL = "http://localhost:8000/";
 
 const reduceTask = (state, action) => {
   const currentState = { ...state };
@@ -18,35 +21,45 @@ const reduceTask = (state, action) => {
     currentState.displayFills = false;
     currentState.displayContext = false;
     currentState.task = action.type;
-    currentState.validateURL = "sentiment_analysis/validate";
+    currentState.validateURL = "classification/infer/";
+    currentState.trainSupport = true;
+    currentState.trainURL = "classification/train/";
     return currentState;
   } else if (action.type === "Question Answering") {
     currentState.buttonText = "Answer";
     currentState.displayFills = false;
     currentState.displayContext = true;
     currentState.task = action.type;
-    currentState.validateURL = "question_answering/validate";
+    currentState.validateURL = "question_answering/infer/";
+    currentState.trainSupport = false;
+    currentState.trainURL = "";
     return currentState;
   } else if (action.type === "Entity Recognition") {
     currentState.buttonText = "Recognise";
     currentState.displayContext = false;
     currentState.displayFills = false;
     currentState.task = action.type;
-    currentState.validateURL = "named_entity_recognition/validate";
+    currentState.validateURL = "named_entity_recognition/infer/";
+    currentState.trainSupport = true;
+    currentState.trainURL = "named_entity_recognition/train/";
     return currentState;
   } else if (action.type === "Fill Masked Word") {
     currentState.buttonText = "Fill";
-    currentState.validateURL = "fill_mask/validate";
+    currentState.validateURL = "fill_mask/infer/";
     currentState.displayContext = false;
     currentState.displayFills = true;
     currentState.task = action.type;
+    currentState.trainSupport = false;
+    currentState.trainURL = "";
     return currentState;
   } else if (action.type === "Text Summarization") {
     currentState.buttonText = "Summarize";
-    currentState.validateURL = "summarization/validate";
+    currentState.validateURL = "summarization/infer/";
     currentState.displayFills = false;
     currentState.displayContext = false;
     currentState.task = action.type;
+    currentState.trainSupport = false;
+    currentState.trainURL = "";
     return currentState;
   } else if (action.type === "Update Text") {
     currentState.inputText = action.payload;
@@ -60,13 +73,17 @@ const reduceTask = (state, action) => {
 const INIT_STATE = {
   task: "Identify Sentiment",
   buttonText: "Identify",
-  validateURL: "sentiment_analysis/validate",
+  validateURL: `classification/infer/true`,
+  trainURL: "",
   displayContext: false,
   inputText: "",
   inputContext: "",
+  trainSupport: true,
+  trainURL: "classification/train/",
 };
 
 function InputBox() {
+  const [selectedFile, setSelectedFile] = useState(null);
   const [taskState, dispatchTaskState] = useReducer(reduceTask, INIT_STATE);
   const [validInput, setValidInput] = useState(true);
   const [validContext, setValidContext] = useState(true);
@@ -75,16 +92,38 @@ function InputBox() {
   const [responseData, setResponseData] = useState({});
   const [sendRequest, isLoading, error] = useRequests(BASE_URL);
   const [showOutputs, setShowOutputs] = useState(false);
+  const [displayModal, setDisplayModal] = useState(false);
+  const [pretrained, setPretrained] = useState(false);
 
   const onChangeTask = (event) => {
     dispatchTaskState({ type: event.target.value });
     setShowOutputs(false);
   };
 
+  const pretrainedChange = (event) => {
+    if (event.target.value === "pretrained") {
+      setPretrained(true);
+    } else {
+      setPretrained(false);
+    }
+  };
+
+  const hideModal = () => {
+    setDisplayModal(false);
+  };
+
+  const showModal = () => {
+    setDisplayModal(true);
+  };
+
   const processData = useCallback((data) => {
     setResponseData(data);
     console.log(data);
   }, []);
+
+  const onFileUpload = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
 
   const updateText = (event) => {
     dispatchTaskState({ type: "Update Text", payload: event.target.value });
@@ -121,7 +160,7 @@ function InputBox() {
 
     sendRequest(
       {
-        url: taskState.validateURL,
+        url: taskState.validateURL + `/${pretrained}`,
         method: "POST",
         body: JSON.stringify(bodyData),
         headers: {
@@ -134,12 +173,42 @@ function InputBox() {
     setShowOutputs(true);
   };
 
+  const onTrain = () => {
+    setDisplayModal(true);
+    const formData = new FormData();
+    formData.append("dataframe", selectedFile);
+    if (selectedFile) {
+      sendRequest(
+        {
+          url: taskState.trainURL,
+          method: "POST",
+          body: formData,
+          headers: {
+            accept: "application/json",
+          },
+        },
+        processData
+      );
+    }
+  };
+
   const onSelectWord = (event) => {
     setSelectedWord(event.target.value);
   };
 
   return (
     <React.Fragment>
+      {displayModal && (
+        <Modal onClick={{ hide: hideModal, show: showModal }}>
+          <div className={classes.train__progress}>
+            {isLoading && <Loading message="Training in progress....." />}
+            {error && error}
+            <Button style={{ alignSelf: "center" }} onClick={hideModal}>
+              {isLoading ? "Cancel" : "OK"}
+            </Button>
+          </div>
+        </Modal>
+      )}
       <Card className={classes.input}>
         <div className={classes.selectors}>
           <select onChange={onChangeTask}>
@@ -218,8 +287,35 @@ function InputBox() {
           ></textarea>
         </div>
 
+        {taskState.trainSupport && <InputForm onFileUpload={onFileUpload} />}
         <div className={classes.input__controls}>
-          <Button onClick={onSubmit}>{taskState.buttonText}</Button>
+          {taskState.trainSupport && (
+            <Button onClick={onTrain}>Train Model</Button>
+          )}
+          <div className={classes.infer__controls}>
+            {taskState.trainSupport && (
+              <form className={classes.infer__model_selectors}>
+                <input
+                  type="radio"
+                  value="pretrained"
+                  id="male"
+                  onChange={pretrainedChange}
+                  name="gender"
+                />
+                <label for="male">Pretrained Model</label>
+
+                <input
+                  type="radio"
+                  value="Your Model"
+                  id="female"
+                  onChange={pretrainedChange}
+                  name="gender"
+                />
+                <label for="female">Your Model</label>
+              </form>
+            )}
+            <Button onClick={onSubmit}>{taskState.buttonText}</Button>
+          </div>
         </div>
       </Card>
       <Card
