@@ -286,13 +286,12 @@ function InputBox() {
             className={!validContext ? classes.invalid : undefined}
           ></textarea>
         </div>
-
-        {taskState.trainSupport && <InputForm onFileUpload={onFileUpload} />}
-        <div className={classes.input__controls}>
-          {taskState.trainSupport && (
+        
+        {/* <div className={classes.input__controls}> */}
+          {/* {taskState.trainSupport && (
             <Button onClick={onTrain}>Train Model</Button>
-          )}
-          <div className={classes.infer__controls}>
+          )} */}
+          <div className={classes.items_center}>
             {taskState.trainSupport && (
               <form className={classes.infer__model_selectors}>
                 <input
@@ -301,23 +300,55 @@ function InputBox() {
                   id="male"
                   onChange={pretrainedChange}
                   name="gender"
+                  checked
                 />
                 <label for="male">Pretrained Model</label>
 
-                <input
+                {/* <input
                   type="radio"
                   value="Your Model"
                   id="female"
                   onChange={pretrainedChange}
                   name="gender"
-                />
-                <label for="female">Your Model</label>
+                /> */}
+                {/* <label for="female">Your Model</label> */}
               </form>
             )}
             <Button onClick={onSubmit}>{taskState.buttonText}</Button>
           </div>
-        </div>
+        {/* </div> */}
+        {/* {taskState.trainSupport && <InputForm onFileUpload={onFileUpload} />} */}
+        
       </Card>
+
+      {taskState.trainSupport && (
+        <Card className={classes.input}>
+          <div className={classes.selectors}>
+            {taskState.trainSupport && <InputForm onFileUpload={onFileUpload} />}
+          </div>
+          <div className={classes.input__text + " " + classes.input_height }>
+            {taskState.trainSupport && ( <label className={classes.p_b}>Input Text </label>)}
+            {taskState.trainSupport && (
+              <textarea
+                placeholder="Type something here...."
+                onChange={updateText}
+                value={taskState.inputText}
+                className={!validInput ? classes.invalid : undefined}
+              ></textarea>
+            )}
+
+          </div>
+          <div className={classes.action_btn}>
+            {taskState.trainSupport && (
+              <Button onClick={onTrain}>Train Model</Button>
+            )}
+            {taskState.trainSupport && (
+              <Button value="Your Model" onClick={pretrainedChange}>Identify using your Model</Button>
+            )}
+          </div>
+        </Card>
+      )}
+      
       <Card
         className={classes.input__text}
         style={{ height: showOutputs ? "auto" : "0px" }}

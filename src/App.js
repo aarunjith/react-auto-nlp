@@ -4,7 +4,7 @@ function App() {
   return (
     <section className={classes.main}>
       <div className={classes.header}>
-        <h2>NLP Capabilities</h2>
+        <h2>FlowML - AutoNLP</h2>
         <p>
           Text Sentiment Classification, Filling Missing text, Entity
           Recognition and Summarization

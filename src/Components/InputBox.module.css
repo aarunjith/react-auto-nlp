@@ -93,3 +93,28 @@
 .infer__controls button {
   align-self: center;
 }
+
+.items_center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-direction: column;
+}
+
+.p_b {
+  padding-left: 2em;
+  font-weight: 600;
+}
+
+.action_btn {
+  text-align: center;
+  display: flex;
+  width: 80%;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.input_height {
+  height: 150px !important;
+  width: 100%;
+}
