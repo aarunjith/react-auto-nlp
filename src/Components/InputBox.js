@@ -23,6 +23,7 @@ const reduceTask = (state, action) => {
     currentState.task = action.type;
     currentState.validateURL = "classification/infer/";
     currentState.trainSupport = true;
+    currentState.pretrianedModel = true;
     currentState.trainURL = "classification/train/";
     return currentState;
   } else if (action.type === "Question Answering") {
@@ -32,6 +33,7 @@ const reduceTask = (state, action) => {
     currentState.task = action.type;
     currentState.validateURL = "question_answering/infer/";
     currentState.trainSupport = false;
+    currentState.pretrianedModel = false;
     currentState.trainURL = "";
     return currentState;
   } else if (action.type === "Entity Recognition") {
@@ -41,6 +43,7 @@ const reduceTask = (state, action) => {
     currentState.task = action.type;
     currentState.validateURL = "named_entity_recognition/infer/";
     currentState.trainSupport = true;
+    currentState.pretrianedModel = true;
     currentState.trainURL = "named_entity_recognition/train/";
     return currentState;
   } else if (action.type === "Fill Masked Word") {
@@ -50,6 +53,7 @@ const reduceTask = (state, action) => {
     currentState.displayFills = true;
     currentState.task = action.type;
     currentState.trainSupport = false;
+    currentState.pretrianedModel = false;
     currentState.trainURL = "";
     return currentState;
   } else if (action.type === "Text Summarization") {
@@ -59,6 +63,7 @@ const reduceTask = (state, action) => {
     currentState.displayContext = false;
     currentState.task = action.type;
     currentState.trainSupport = false;
+    currentState.pretrianedModel = false;
     currentState.trainURL = "";
     return currentState;
   } else if (action.type === "Update Text") {
@@ -67,18 +72,23 @@ const reduceTask = (state, action) => {
   } else if (action.type === "Update Context") {
     currentState.inputContext = action.payload;
     return currentState;
+  } else if (action.type === "Update Model Text") {
+    currentState.inputModelText = action.payload;
+    return currentState;
   }
 };
 
 const INIT_STATE = {
   task: "Identify Sentiment",
   buttonText: "Identify",
-  validateURL: `classification/infer/true`,
+  validateURL: `classification/infer/`,
   trainURL: "",
   displayContext: false,
   inputText: "",
   inputContext: "",
+  inputModelText: "",
   trainSupport: true,
+  pretrianedModel: true,
   trainURL: "classification/train/",
 };
 
@@ -87,25 +97,34 @@ function InputBox() {
   const [taskState, dispatchTaskState] = useReducer(reduceTask, INIT_STATE);
   const [validInput, setValidInput] = useState(true);
   const [validContext, setValidContext] = useState(true);
+  const [validModelText, setValidModelText] = useState(true);
   const [inputWords, setInputWords] = useState([]);
   const [selectedWord, setSelectedWord] = useState(null);
   const [responseData, setResponseData] = useState({});
   const [sendRequest, isLoading, error] = useRequests(BASE_URL);
   const [showOutputs, setShowOutputs] = useState(false);
   const [displayModal, setDisplayModal] = useState(false);
-  const [pretrained, setPretrained] = useState(false);
 
   const onChangeTask = (event) => {
+    taskState.inputText = '';
+    taskState.inputModelText = '';
+    taskState.inputContext = '';
     dispatchTaskState({ type: event.target.value });
     setShowOutputs(false);
   };
 
-  const pretrainedChange = (event) => {
-    if (event.target.value === "pretrained") {
-      setPretrained(true);
+  const pretrainedChange = () => {
+    taskState.pretrianedModel = false;
+    onSubmit();
+  };
+
+  const onFormSubmit = () => {
+    if (taskState.task === "Identify Sentiment" || taskState.task === "Entity Recognition") {
+      taskState.pretrianedModel = true;
     } else {
-      setPretrained(false);
+      taskState.pretrianedModel = false;
     }
+    onSubmit();
   };
 
   const hideModal = () => {
@@ -118,7 +137,7 @@ function InputBox() {
 
   const processData = useCallback((data) => {
     setResponseData(data);
-    console.log(data);
+    console.log('data', data);
   }, []);
 
   const onFileUpload = (event) => {
@@ -143,24 +162,39 @@ function InputBox() {
     if (event.target.value) setValidContext(true);
   };
 
+  const updateModelText = (event) => {
+    dispatchTaskState({ type: "Update Model Text", payload: event.target.value });
+    if (event.target.value) setValidModelText(true);
+  }
+
   const onSubmit = () => {
-    if (!taskState.inputText) {
+    if (!taskState.inputText && taskState.pretrianedModel) {
       setValidInput(false);
       return;
     }
-    if (!taskState.inputContext) {
-      setValidContext(false);
-      if (taskState.task === "Question Answering") return;
+
+    if (!taskState.inputModelText && !taskState.pretrianedModel) {
+      setValidModelText(false);
+      return;
     }
+
+    if (!taskState.inputContext) {
+      if (taskState.task === "Question Answering") {
+        setValidContext(false);
+        return;
+      }
+    }
+
     const bodyData = {};
     if (taskState.task === "Fill Masked Word")
       bodyData.text = taskState.inputText.replace(selectedWord, "[MASK]");
     else bodyData.text = taskState.inputText;
     if (taskState.inputContext) bodyData.context = taskState.inputContext;
+    if(taskState.inputModelText) bodyData.text = taskState.inputModelText
 
     sendRequest(
       {
-        url: taskState.validateURL + `/${pretrained}`,
+        url: taskState.validateURL + taskState.pretrianedModel,
         method: "POST",
         body: JSON.stringify(bodyData),
         headers: {
@@ -287,38 +321,42 @@ function InputBox() {
           ></textarea>
         </div>
         
-        {/* <div className={classes.input__controls}> */}
-          {/* {taskState.trainSupport && (
-            <Button onClick={onTrain}>Train Model</Button>
-          )} */}
-          <div className={classes.items_center}>
-            {taskState.trainSupport && (
-              <form className={classes.infer__model_selectors}>
-                <input
-                  type="radio"
-                  value="pretrained"
-                  id="male"
-                  onChange={pretrainedChange}
-                  name="gender"
-                  checked
-                />
-                <label for="male">Pretrained Model</label>
+        <div className={classes.items_center}>
+          {taskState.trainSupport && (
+            <form className={classes.infer__model_selectors}>
+              <input
+                type="radio"
+                value="pretrained"
+                id="male"
+                name="gender"
+                checked
+              />
+              <label for="male">Pretrained Model</label>
+            </form>
+          )}
+          <Button onClick={onFormSubmit}>{taskState.buttonText}</Button>
+        </div>
+      </Card>
 
-                {/* <input
-                  type="radio"
-                  value="Your Model"
-                  id="female"
-                  onChange={pretrainedChange}
-                  name="gender"
-                /> */}
-                {/* <label for="female">Your Model</label> */}
-              </form>
-            )}
-            <Button onClick={onSubmit}>{taskState.buttonText}</Button>
-          </div>
-        {/* </div> */}
-        {/* {taskState.trainSupport && <InputForm onFileUpload={onFileUpload} />} */}
-        
+      <Card
+        className={classes.input__text}
+        style={{ height: showOutputs ? "auto" : "0px" }}
+      >
+        {taskState.pretrianedModel && taskState.task === "Identify Sentiment" && (
+          <SentimentResult
+            data={responseData}
+            error={error}
+            isLoading={isLoading}
+          />
+        )}
+        {taskState.pretrianedModel && taskState.task === "Entity Recognition" && (
+          <NEROutput
+            data={responseData}
+            error={error}
+            isLoading={isLoading}
+            text={taskState.inputText}
+          />
+        )}
       </Card>
 
       {taskState.trainSupport && (
@@ -331,9 +369,9 @@ function InputBox() {
             {taskState.trainSupport && (
               <textarea
                 placeholder="Type something here...."
-                onChange={updateText}
-                value={taskState.inputText}
-                className={!validInput ? classes.invalid : undefined}
+                onChange={updateModelText}
+                value={taskState.inputModelText}
+                className={!validModelText ? classes.invalid : undefined}
               ></textarea>
             )}
 
@@ -353,14 +391,14 @@ function InputBox() {
         className={classes.input__text}
         style={{ height: showOutputs ? "auto" : "0px" }}
       >
-        {taskState.task === "Identify Sentiment" && (
+        {!taskState.pretrianedModel && taskState.task === "Identify Sentiment" && (
           <SentimentResult
             data={responseData}
             error={error}
             isLoading={isLoading}
           />
         )}
-        {taskState.task === "Entity Recognition" && (
+        {!taskState.pretrianedModel && taskState.task === "Entity Recognition" && (
           <NEROutput
             data={responseData}
             error={error}
