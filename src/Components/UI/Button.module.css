@@ -8,6 +8,7 @@
   font-weight: 400;
   font-size: 1em;
   transition: background-color 200ms;
+  margin-top: 10px;
 }
 
 .button:hover {

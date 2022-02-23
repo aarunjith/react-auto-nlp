@@ -109,6 +109,8 @@ function InputBox() {
     taskState.inputText = '';
     taskState.inputModelText = '';
     taskState.inputContext = '';
+    setInputWords([]);
+    setSelectedWord(null);
     dispatchTaskState({ type: event.target.value });
     setShowOutputs(false);
   };
@@ -149,7 +151,7 @@ function InputBox() {
     if (event.target.value) setValidInput(true);
     setShowOutputs(false);
 
-    if (event.target.value) {
+    if (event.target.value && taskState.task === "Fill Masked Word") {
       setInputWords(event.target.value.split(" "));
     } else {
       setInputWords([]);
@@ -213,6 +215,7 @@ function InputBox() {
     setDisplayModal(true);
     const formData = new FormData();
     formData.append("dataframe", selectedFile);
+    taskState.pretrianedModel = false;
     if (selectedFile) {
       sendRequest(
         {
@@ -239,12 +242,13 @@ function InputBox() {
           <div className={classes.train__progress}>
             {isLoading && <Loading message="Training in progress....." />}
             {error && error}
+            {isLoading ? null : "Training is completed"}
             <Button style={{ alignSelf: "center" }} onClick={hideModal}>
               {isLoading ? "Cancel" : "OK"}
             </Button>
           </div>
         </Modal>
-      )}
+       )}
       <Card className={classes.input}>
         <div className={classes.selectors}>
           <select onChange={onChangeTask}>
