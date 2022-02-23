@@ -174,8 +174,10 @@ function InputBox() {
     }
 
     if (!taskState.inputModelText && !taskState.pretrianedModel) {
-      setValidModelText(false);
-      return;
+      if (taskState.task === "Identify Sentiment" || taskState.task === "Entity Recognition") {
+        setValidModelText(false);
+        return;
+      }
     }
 
     if (!taskState.inputContext) {
